@@ -8,7 +8,6 @@
 import Foundation
 
 protocol UserDetailPresenterProtocol {
-    
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
     func didTapButton(userIDStr:String)

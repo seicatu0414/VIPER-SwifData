@@ -8,6 +8,7 @@
 import Foundation
 
 protocol SearchUserPresenterProtocol:ObservableObject {
+    var users: [LookedUser] { get }
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
     func didTapButton(userIDStr: String)

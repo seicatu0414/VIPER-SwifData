@@ -1,17 +1,18 @@
 //
-//  ContentView.swift
+//  SearchUserView.swift
 //  VIPER
 //
-//  Created by yamaguchi kohei on 2024/12/05.
+//  Created by yamaguchi kohei on 2024/12/12.
 //
+
 import SwiftUI
 import SwiftData
-
-struct SearchUserView: View {
+// Presenterを疎結合にするためジェネリクス定義
+struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
     @Binding var navigationPath: NavigationPath
-    @ObservedObject var presenter: SearchUserPresenter
+    @ObservedObject var presenter: Presenter
     @State private var searchText: String = ""
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -25,7 +26,6 @@ struct SearchUserView: View {
         }
     }
 
-    // サブビュー: 検索バー
     private var searchBar: some View {
         HStack {
             TextField("ユーザIDを入力", text: $searchText)
@@ -46,7 +46,6 @@ struct SearchUserView: View {
         .padding(.top)
     }
 
-    // サブビュー: ユーザリスト
     private var userList: some View {
         List(presenter.users, id: \.id) { user in
             Button(action: {
@@ -65,7 +64,6 @@ struct SearchUserView: View {
     }
 }
 
-
 //#Preview {
 //    // プレゼンターのダミーデータを注入
 //    let dummyPresenter = SearchUserPresenter(
@@ -73,7 +71,7 @@ struct SearchUserView: View {
 //        swiftDataInteractor: DummySwiftDataInteractor(),
 //        router: DummyRouter()
 //    )
-//    
+//
 //    SearchUserView(presenter: dummyPresenter)
 //        .modelContainer(for: LookedUser.self, inMemory: true)
 //}

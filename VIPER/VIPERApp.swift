@@ -47,7 +47,7 @@ struct VIPERApp: App {
                     swiftDataInteractor: diContainer.swiftDataInteractor,
                     router: router
                 )
-                SearchUserView(navigationPath: $navigationPath, presenter: presenter)
+                SearchUserView<SearchUserPresenter>(navigationPath: $navigationPath, presenter: presenter)
             }
         }
         .modelContainer(sharedModelContainer)
