@@ -7,8 +7,10 @@
 
 import SwiftUI
 
-struct UserDetailView: View {
-    let userData: SearchUser
+struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
+    @Binding var navigationPath: NavigationPath
+    @ObservedObject var presenter: Presenter
+    
     var body: some View {
         VStack(spacing: 16) {
 //            if let imageData = userData.followeesCount,
@@ -26,12 +28,12 @@ struct UserDetailView: View {
 //                    .clipShape(Circle())
 //                    .foregroundColor(.gray)
 //            }
-            Text(userData.name ?? "No Name")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text("Followers: \(userData.followersCount ?? 0)")
-            Text("Following: \(userData.followeesCount ?? 0)")
+//            Text(userData.name ?? "No Name")
+//                .font(.title)
+//                .fontWeight(.bold)
+//            
+//            Text("Followers: \(userData.followersCount ?? 0)")
+//            Text("Following: \(userData.followeesCount ?? 0)")
         }
         .padding()
         .navigationTitle("ユーザ詳細")

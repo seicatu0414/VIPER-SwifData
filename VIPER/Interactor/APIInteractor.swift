@@ -11,7 +11,7 @@ protocol APIInteractorProtocol {
     func sendUserApi(userId: String) async throws -> SearchUser
     func sendUserItemsApi(userId: String) async throws -> [SearchUserItems]
     func sendFolloweesApi(userId: String) async throws -> [SearchUserFollowee]
-    func sendFollowersApi(userId: String) async throws -> [SearchUserFollowers]
+    func sendFollowersApi(userId: String) async throws -> [SearchUserFollower]
     func sendGetIconData(url: String) async throws -> Data
 }
 
@@ -60,12 +60,12 @@ class APIInteractor: APIInteractorProtocol {
     
     // https://qiita.com/api/v2/users/:user_id/followers
     // FollowerAPIをGetする
-    func sendFollowersApi(userId: String) async throws -> [SearchUserFollowers] {
+    func sendFollowersApi(userId: String) async throws -> [SearchUserFollower] {
         // URL作成
         let url = URL(string: Urls.MainUrl.rawValue + userId + Urls.Followers.rawValue)!
         let (data, err) = try await URLSession.shared.data(from: url)
         do {
-            return try JSONDecoder().decode([SearchUserFollowers].self, from: data)
+            return try JSONDecoder().decode([SearchUserFollower].self, from: data)
         } catch {
             let errNum = err.hashValue
             throw Errors.networkError(errNum)

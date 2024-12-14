@@ -20,11 +20,11 @@ class SearchUserPresenter: SearchUserPresenterProtocol {
     @Published var users: [LookedUser] = [LookedUser]()
     private var apiInteractor: APIInteractorProtocol
     private var swiftDataInteractor: SwiftDataInteractorProtocol
-    private var router: UserDetailViewRouterProtocol
+    private var router: SearchUserRouterProtocol
     
     init(apiInteractor: APIInteractorProtocol,
          swiftDataInteractor: SwiftDataInteractorProtocol,
-         router: UserDetailViewRouterProtocol) {
+         router: SearchUserRouterProtocol) {
         self.apiInteractor = apiInteractor
         self.swiftDataInteractor = swiftDataInteractor
         self.router = router

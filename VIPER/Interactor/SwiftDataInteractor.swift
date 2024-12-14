@@ -9,7 +9,7 @@ import Foundation
 
 protocol SwiftDataInteractorProtocol {
     func fetchLookedUsers(completion: @escaping (Result<[LookedUser],Error>) -> Void) async throws
-    func saveUser(id: String?, name: String?, profileImageData: Data?, followeesCount: Int?, followersCount: Int?, lookDate: Date?, completion: @escaping (Result<Void, Error>) -> Void)
+    func saveUser(id: String?, name: String?, profileImageData: Data?, followeesCount: Int?, followersCount: Int?, lookDate: Date?) async throws
     func deleteUser(user: LookedUser, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
@@ -33,10 +33,9 @@ class SwiftDataInteractor: SwiftDataInteractorProtocol {
     }
 
     // データを保存
-    func saveUser(id: String?, name: String?, profileImageData: Data?, followeesCount: Int?, followersCount: Int?, lookDate: Date?, completion: @escaping (Result<Void, Error>) -> Void) {
+    func saveUser(id: String?, name: String?, profileImageData: Data?, followeesCount: Int?, followersCount: Int?, lookDate: Date?) async throws {
         guard let id = id else {
             print("ID cannot be nil")
-            completion(.failure(Errors.swiftDataWriteError))
             return
         }
         
@@ -62,10 +61,8 @@ class SwiftDataInteractor: SwiftDataInteractorProtocol {
             
             // 保存処理
             try modelContext.save()
-            completion(.success(()))
         } catch {
-            print("Error saving or updating user: \(error)")
-            completion(.failure(Errors.swiftDataWriteError))
+            throw Errors.swiftDataWriteError
         }
     }
 

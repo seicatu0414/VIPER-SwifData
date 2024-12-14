@@ -314,7 +314,7 @@ struct SearchUserFollowee: Decodable {
 
 // https://qiita.com/api/v2/users/:user_id/followers
 // Followerしてる
-struct SearchUserFollowers: Decodable {
+struct SearchUserFollower: Decodable {
     let description:String?
     let facebookID: String?
     let followeesCount: Int?

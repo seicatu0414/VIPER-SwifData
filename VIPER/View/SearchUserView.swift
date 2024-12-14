@@ -14,14 +14,14 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
     @State private var searchText: String = ""
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 searchBar
                 userList
             }
             .navigationTitle("ユーザ検索")
             .navigationDestination(for: SearchUser.self) { user in
-                UserDetailView(userData: user)
+                UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared)
             }
         }
     }

@@ -7,68 +7,75 @@
 
 import Foundation
 
-protocol UserDetailPresenterProtocol {
+protocol UserDetailPresenterProtocol:ObservableObject {
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
-    func didTapButton(userIDStr:String)
-    func fetchSwiftData() async throws
+    func tapFollowerButton()
+    func tapFolloweeButton()
+    func saveUserData(imageData:Data) async throws
 }
 
-class UserDetailUserPresenter: UserDetailPresenterProtocol {
+class UserDetailPresenter: UserDetailPresenterProtocol {
     // 一時的な情報保持のためPresenterに保持
-    @Published var users: [LookedUser] = [LookedUser]()
+    let userData: SearchUser
+    @Published var items: [SearchUserItems] = [SearchUserItems]()
+    var lookingUser:String = ""
     private var apiInteractor: APIInteractorProtocol
     private var swiftDataInteractor: SwiftDataInteractorProtocol
-//    private var router: UserDetailViewRouterProtocol
+    private var router: UserDetailRouterProtocol
     
     init(apiInteractor: APIInteractorProtocol,
          swiftDataInteractor: SwiftDataInteractorProtocol,
-         router: UserDetailViewRouterProtocol) {
+         router: UserDetailRouterProtocol) {
         self.apiInteractor = apiInteractor
         self.swiftDataInteractor = swiftDataInteractor
-//        self.router = router
+        self.router = router
     }
     
     // テーブルビュー
     func didSelectCell(at indexPath: IndexPath) {
-        let user = self.users[indexPath.row]
+        let item = self.items[indexPath.row]
         Task {
-            do {
-                let userData = try await apiInteractor.sendUserApi(userId: user.id!)
-                // メインスレッドで画面遷移のためawait
-//                await self.router.ToUserDetail(userData: userData)
-            } catch {
-                print("API通信に失敗: \(error)")
-            }
+            // メインスレッドで画面遷移のためawait
+            await self.router.modalItemWebView(url: item.url!)
         }
     }
     
-    //検索ボタンタップ時
-    func didTapButton(userIDStr:String) {
-        if userIDStr.isEmpty { return }
+    func tapFollowerButton() {
         Task {
             do {
-                let userData = try await apiInteractor.sendUserApi(userId: userIDStr)
-                // メインスレッドで画面遷移のためawait
-//                await self.router.ToUserDetail(userData: userData)
+                var followers = try await apiInteractor.sendFollowersApi(userId: userData.id!)
+                await self.router.tapToFollower(followers: followers)
             } catch {
-                print("API通信に失敗: \(error)")
+                
             }
+
         }
     }
     
-    
-    
-    //Viewのタスクで使用予定
-    func fetchSwiftData() async throws {
-        try await self.swiftDataInteractor.fetchLookedUsers(completion: { result in
-            if case .success(let users) = result {
-                self.users = users
-            } else {
-                // 失敗時
-                print("swiDataの読み込み失敗")
+    func tapFolloweeButton() {
+        Task {
+            do {
+                var followees = try await apiInteractor.sendFolloweesApi(userId: userData.id!)
+                await self.router.tapToFollowee(followees: followees)
+            } catch {
+                
             }
-        })
+
+        }
+    }
+    
+    // 見ていたユーザーデータの保存(navigationDissmiss時)
+    func saveUserData(imageData:Data) async throws {
+        var date = Date()
+        Task {
+            do {
+                try await self.swiftDataInteractor.saveUser(id: userData.id, name: userData.name, profileImageData: imageData, followeesCount: userData.followeesCount, followersCount: userData.followersCount, lookDate: date)
+                await self.router.popToSearchUserView()
+            } catch {
+                
+            }
+        }
     }
 }
 
