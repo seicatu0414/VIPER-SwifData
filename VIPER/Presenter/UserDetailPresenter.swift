@@ -8,6 +8,7 @@
 import Foundation
 
 protocol UserDetailPresenterProtocol:ObservableObject {
+    var items: [SearchUserItems] { get }
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
     func tapFollowerButton()
@@ -26,10 +27,12 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     
     init(apiInteractor: APIInteractorProtocol,
          swiftDataInteractor: SwiftDataInteractorProtocol,
-         router: UserDetailRouterProtocol) {
+         router: UserDetailRouterProtocol,
+         userData: SearchUser) {
         self.apiInteractor = apiInteractor
         self.swiftDataInteractor = swiftDataInteractor
         self.router = router
+        self.userData = userData
     }
     
     // テーブルビュー
@@ -73,7 +76,7 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
                 try await self.swiftDataInteractor.saveUser(id: userData.id, name: userData.name, profileImageData: imageData, followeesCount: userData.followeesCount, followersCount: userData.followersCount, lookDate: date)
                 await self.router.popToSearchUserView()
             } catch {
-                
+                print("aaaa")
             }
         }
     }

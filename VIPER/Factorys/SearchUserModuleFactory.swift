@@ -11,6 +11,7 @@ import SwiftUI
 class SearchUserModuleFactory: @preconcurrency ModuleFactoryProtocol {
     typealias PresenterType = SearchUserPresenter
     typealias ViewType = SearchUserView<SearchUserPresenter>
+    typealias InputData = Void
     @Binding var navigationPath: NavigationPath
     init(navigationPath: Binding<NavigationPath>) {
         _navigationPath = navigationPath
@@ -19,7 +20,8 @@ class SearchUserModuleFactory: @preconcurrency ModuleFactoryProtocol {
     @MainActor
     static func createModule(
         navigationPath: Binding<NavigationPath>,
-        diContainer: DIContainer
+        diContainer: DIContainer,
+        inputData: Void? = nil
     ) -> SearchUserView<SearchUserPresenter> {
         let router = SearchUserViewRouter(navigationPath: navigationPath)
         let presenter = SearchUserPresenter(

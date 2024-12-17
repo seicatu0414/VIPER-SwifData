@@ -19,13 +19,17 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
                 searchBar
                 userList
             }
+            .onAppear() {
+                Task {
+                    try await presenter.fetchSwiftData()
+                }
+            }
             .navigationTitle("ユーザ検索")
             .navigationDestination(for: SearchUser.self) { user in
-                UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared)
+                UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: user)
             }
         }
     }
-
     private var searchBar: some View {
         HStack {
             TextField("ユーザIDを入力", text: $searchText)

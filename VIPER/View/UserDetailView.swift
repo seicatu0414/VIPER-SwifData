@@ -35,7 +35,15 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
 //            Text("Followers: \(userData.followersCount ?? 0)")
 //            Text("Following: \(userData.followeesCount ?? 0)")
         }
+        .onDisappear(){
+            Task {
+               try await presenter.saveUserData(imageData:Data())
+            }
+
+        }
         .padding()
         .navigationTitle("ユーザ詳細")
     }
+        
+    
 }
