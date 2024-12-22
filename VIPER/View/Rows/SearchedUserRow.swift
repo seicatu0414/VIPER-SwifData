@@ -21,31 +21,44 @@ struct SearchedUserRow: View {
     }
     
     var body: some View {
-        HStack {
-            if let uiImage = UIImage(data: userImageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.gray, lineWidth: 1))
-                    .shadow(radius: 3)
-            } else {
-                // 画像データがない場合のプレースホルダー
-                Circle()
-                    .fill(Color.gray)
-                    .frame(width: 50, height: 50)
-                    .overlay(Text("?").foregroundColor(.white))
-            }
-            VStack(alignment: .leading) {
-                Text(userName)
-                    .font(.headline)
-                Text("フォロワー: \(userFloweeCnt) フォロー: \(userFlowerCnt)")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
+           GeometryReader { geometry in
+               HStack(alignment: .center) {
+                   if let uiImage = UIImage(data: userImageData) {
+                       Image(uiImage: uiImage)
+                           .resizable()
+                           .scaledToFill()
+                           .frame(width: 50, height: 50)
+                           .clipShape(Circle())
+                           .overlay(Circle().stroke(Color.gray, lineWidth: 1))
+                           .shadow(radius: 3)
+                   } else {
+                       Circle()
+                           .fill(Color.gray)
+                           .frame(width: 50, height: 50)
+                           .overlay(Text("?").foregroundColor(.white))
+                   }
+
+                   VStack(alignment: .leading, spacing: 4) {
+                       Text(userName)
+                           .font(.headline)
+                       HStack {
+                           Text("フォロワー: \(userFloweeCnt)")
+                               .font(.footnote)
+                               .foregroundColor(.secondary)
+                           Text("フォロー: \(userFlowerCnt)")
+                               .font(.footnote)
+                               .foregroundColor(.secondary)
+                       }
+                   }
+                   Spacer()
+               }
+               .frame(width: geometry.size.width)
+               //　無効なフレーム寸法 (負または非有限)らしい
+               // ちなみにマイナス値にフレームがなった場合その正の値が返る。
+               //.frame(width: .infinity)
+           }
+           .frame(height: 60)
+       }
 }
 
 struct CountryRow_Previews: PreviewProvider {

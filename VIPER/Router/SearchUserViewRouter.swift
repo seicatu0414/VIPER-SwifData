@@ -24,7 +24,6 @@ class SearchUserViewRouter: SearchUserRouterProtocol {
     // プッシュ遷移
     func pushToUserDetail(userData: SearchUser) {
         navigationPath.append(userData)
-        
     }
     
     // ポップ遷移

@@ -6,12 +6,14 @@
 //
 
 import SwiftData
+import Foundation
 
-public class SharedModelContainer {
+public class SharedModelContainer:ObservableObject {
     //staticは初めてコールされた時にインスタンス化され変数のみメモリに保持される
     static let shared = SharedModelContainer()
     let modelContainer: ModelContainer
-    
+    // saveを検知し、Listを再描画するためのフラグ
+    @Published var dataChangeCnt: Int = 0
     @MainActor
     var mainContext: ModelContext {
         modelContainer.mainContext
@@ -29,4 +31,11 @@ public class SharedModelContainer {
             fatalError("Failed to initialize ModelContainer: \(error)")
         }
     }
+    // @pablish変数を変更する時はメインスレッドで行う
+    @MainActor
+    func saveContext() async throws {
+        // バージョン番号を更新して変更を通知
+        dataChangeCnt += 1
+    }
 }
+

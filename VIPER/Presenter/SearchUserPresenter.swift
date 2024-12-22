@@ -57,18 +57,9 @@ class SearchUserPresenter: SearchUserPresenterProtocol {
             }
         }
     }
-    
-    
-    
-    //Viewのタスクで使用予定
+    // @publishedの更新をするのはMainスレッド推奨のため＠MainActor
+    @MainActor
     func fetchSwiftData() async throws {
-        try await self.swiftDataInteractor.fetchLookedUsers(completion: { result in
-            if case .success(let users) = result {
-                self.users = users
-            } else {
-                // 失敗時
-                print("swiDataの読み込み失敗")
-            }
-        })
+        self.users = try await self.swiftDataInteractor.fetchLookedUsers()
     }
 }

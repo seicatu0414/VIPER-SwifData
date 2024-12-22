@@ -10,6 +10,7 @@ import SwiftData
 // Presenterを疎結合にするためジェネリクス定義
 struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
     @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var sharedModelContainer: SharedModelContainer
     @ObservedObject var presenter: Presenter
     @State private var searchText: String = ""
     
@@ -17,6 +18,7 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
         NavigationStack {
             VStack {
                 searchBar
+                listTitle
                 userList
             }
             .onAppear() {
@@ -25,29 +27,56 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
                 }
             }
             .navigationTitle("ユーザ検索")
+            .onChange(of: sharedModelContainer.dataChangeCnt) { _ in
+                // pop遷移がうまく制御できず、onAppearがSwiftDataの更新
+                // より早く走ってしまう為modelcontextの更新で再レンダリングを行うために
+                // やむなく実装
+                // 暇な時に修正案考える
+                Task {
+                    try await presenter.fetchSwiftData()
+                }
+            }
             .navigationDestination(for: SearchUser.self) { user in
                 UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: user)
             }
         }
     }
+    
     private var searchBar: some View {
         HStack {
             TextField("ユーザIDを入力", text: $searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
+                .frame(height: 44)
 
             Button(action: {
                 presenter.didTapButton(userIDStr: searchText)
             }) {
                 Text("検索")
                     .fontWeight(.bold)
-                    .padding()
+                    .frame(maxHeight: .infinity)
+                    .padding(.horizontal, 16)
                     .background(Color.qiitaDarkGreen)
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
+            .frame(height: 44)
+            .padding(5)
         }
         .padding(.top)
+    }
+    
+    private var listTitle: some View {
+        GeometryReader { geometry in
+            Text("過去閲覧したユーザー")
+                .fontWeight(.bold)
+                .frame(width: geometry.size.width, height: 30, alignment: .leading)
+                .padding(.horizontal, 16)
+                .background(Color.secondary)
+                .foregroundColor(.white)
+        }
+        .frame(height: 30)
+        
     }
 
     private var userList: some View {
@@ -63,8 +92,11 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
                     userFlowerCnt: "\(user.followersCount ?? 0)",
                     userFloweeCnt: "\(user.followeesCount ?? 0)"
                 )
+                .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.plain)
         }
+        .listStyle(PlainListStyle())
     }
 }
 

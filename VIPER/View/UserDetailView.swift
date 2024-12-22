@@ -34,6 +34,7 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
 //            
 //            Text("Followers: \(userData.followersCount ?? 0)")
 //            Text("Following: \(userData.followeesCount ?? 0)")
+            detailList
         }
         .onDisappear(){
             Task {
@@ -44,6 +45,21 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
         .padding()
         .navigationTitle("ユーザ詳細")
     }
-        
+    
+    private var detailList: some View {
+        List(presenter.items, id: \.id) { item in
+            Button(action: {
+                if let index = presenter.items.firstIndex(where: { $0.id == item.id }) {
+                    presenter.didSelectCell(at: IndexPath(row: index, section: 0))
+                }
+            }) {
+                UserItemsRow(title: item.title!, updateDay: item.updatedAt!, tags: item.tags!)
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
+        }
+        .listStyle(PlainListStyle())
+    }
+    
     
 }

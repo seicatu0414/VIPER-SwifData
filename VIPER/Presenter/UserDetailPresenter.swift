@@ -70,15 +70,13 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     
     // 見ていたユーザーデータの保存(navigationDissmiss時)
     func saveUserData(imageData:Data) async throws {
-        var date = Date()
-        Task {
+        let date = Date()
             do {
                 try await self.swiftDataInteractor.saveUser(id: userData.id, name: userData.name, profileImageData: imageData, followeesCount: userData.followeesCount, followersCount: userData.followersCount, lookDate: date)
                 await self.router.popToSearchUserView()
             } catch {
                 print("aaaa")
             }
-        }
     }
 }
 

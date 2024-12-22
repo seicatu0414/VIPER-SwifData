@@ -6,9 +6,10 @@
 //
 import SwiftData
 import Foundation
-
+// SwiftDataはメインスレッドで操作推奨外すとWarning
+@MainActor
 protocol SwiftDataInteractorProtocol {
-    func fetchLookedUsers(completion: @escaping (Result<[LookedUser],Error>) -> Void) async throws
+    func fetchLookedUsers() async throws -> [LookedUser]
     func saveUser(id: String?, name: String?, profileImageData: Data?, followeesCount: Int?, followersCount: Int?, lookDate: Date?) async throws
     func deleteUser(user: LookedUser, completion: @escaping (Result<Void, Error>) -> Void)
 }
@@ -21,14 +22,14 @@ class SwiftDataInteractor: SwiftDataInteractorProtocol {
     }
 
     // データを取得
-    func fetchLookedUsers(completion: @escaping (Result<[LookedUser],Error>) -> Void) async throws {
+    func fetchLookedUsers() async throws ->[LookedUser]  {
         let fetchDescriptor = FetchDescriptor<LookedUser>()
         do {
             let users = try modelContext.fetch(fetchDescriptor)
-            completion(.success(users))
+            return users
         } catch {
             print("Error fetching items: \(error)")
-            completion(.failure(Errors.swiftDataReadError))
+            throw Errors.swiftDataReadError
         }
     }
 
@@ -41,8 +42,9 @@ class SwiftDataInteractor: SwiftDataInteractorProtocol {
         
         do {
             // 既存データを取得または新規作成
+            // matchingでアンラップしてはいけない（これ起因でエラーに落ちてた）
             let user = try modelContext.findOrInsert(
-                matching: #Predicate<LookedUser> { $0.id! == id },
+                matching: #Predicate<LookedUser> { $0.id == id },
                 create: LookedUser(id: id,
                                    name: name,
                                    profileImageData: profileImageData,
@@ -61,6 +63,7 @@ class SwiftDataInteractor: SwiftDataInteractorProtocol {
             
             // 保存処理
             try modelContext.save()
+            try await SharedModelContainer.shared.saveContext() // 通知をトリガー
         } catch {
             throw Errors.swiftDataWriteError
         }
