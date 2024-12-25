@@ -8,12 +8,15 @@
 import Foundation
 
 protocol UserDetailPresenterProtocol:ObservableObject {
+    var userData: SearchUser { get }
     var items: [SearchUserItems] { get }
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
     func tapFollowerButton()
     func tapFolloweeButton()
-    func saveUserData(imageData:Data) async throws
+    func saveUserData() async throws
+    func fetchItemApi() async throws
+    func fetchImageData() async throws -> Data
 }
 
 class UserDetailPresenter: UserDetailPresenterProtocol {
@@ -21,6 +24,7 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     let userData: SearchUser
     @Published var items: [SearchUserItems] = [SearchUserItems]()
     var lookingUser:String = ""
+    var imageData:Data = Data()
     private var apiInteractor: APIInteractorProtocol
     private var swiftDataInteractor: SwiftDataInteractorProtocol
     private var router: UserDetailRouterProtocol
@@ -69,7 +73,7 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     }
     
     // 見ていたユーザーデータの保存(navigationDissmiss時)
-    func saveUserData(imageData:Data) async throws {
+    func saveUserData() async throws {
         let date = Date()
             do {
                 try await self.swiftDataInteractor.saveUser(id: userData.id, name: userData.name, profileImageData: imageData, followeesCount: userData.followeesCount, followersCount: userData.followersCount, lookDate: date)
@@ -77,6 +81,22 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
             } catch {
                 print("aaaa")
             }
+    }
+
+    // @publishedの更新をするのはMainスレッド推奨のため＠MainActor
+    @MainActor
+    func fetchItemApi() async throws {
+        do {
+            let items = try await apiInteractor.sendUserItemsApi(userId: userData.id!)
+            self.items = items
+        } catch {
+            
+        }
+    }
+    
+   func fetchImageData() async throws -> Data {
+       self.imageData = try await apiInteractor.sendGetIconData(url: userData.profileImageURL!)
+       return self.imageData
     }
 }
 

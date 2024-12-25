@@ -18,7 +18,7 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
         NavigationStack {
             VStack {
                 searchBar
-                listTitle
+                MiddleListTitleView(title: "過去閲覧したユーザー")
                 userList
             }
             .onAppear() {
@@ -27,7 +27,7 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
                 }
             }
             .navigationTitle("ユーザ検索")
-            .onChange(of: sharedModelContainer.dataChangeCnt) { _ in
+            .onChange(of: sharedModelContainer.dataChangeCnt) {
                 // pop遷移がうまく制御できず、onAppearがSwiftDataの更新
                 // より早く走ってしまう為modelcontextの更新で再レンダリングを行うために
                 // やむなく実装
@@ -66,18 +66,18 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
         .padding(.top)
     }
     
-    private var listTitle: some View {
-        GeometryReader { geometry in
-            Text("過去閲覧したユーザー")
-                .fontWeight(.bold)
-                .frame(width: geometry.size.width, height: 30, alignment: .leading)
-                .padding(.horizontal, 16)
-                .background(Color.secondary)
-                .foregroundColor(.white)
-        }
-        .frame(height: 30)
-        
-    }
+//    private var listTitle: some View {
+//        GeometryReader { geometry in
+//            Text("過去閲覧したユーザー")
+//                .fontWeight(.bold)
+//                .frame(width: geometry.size.width, height: 30, alignment: .leading)
+//                .padding(.horizontal, 16)
+//                .background(Color.secondary)
+//                .foregroundColor(.white)
+//        }
+//        .frame(height: 30)
+//        
+//    }
 
     private var userList: some View {
         List(presenter.users, id: \.id) { user in

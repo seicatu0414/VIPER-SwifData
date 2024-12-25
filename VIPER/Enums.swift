@@ -15,6 +15,8 @@ enum Urls:String {
 enum Errors: Error {
     case decodingError
     case networkError(Int)
+    case invalidURL
+    case invalidResponse
     case castError
     case swiftDataReadError
     case swiftDataWriteError

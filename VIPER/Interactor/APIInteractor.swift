@@ -73,13 +73,22 @@ class APIInteractor: APIInteractorProtocol {
     }
     // アイコンの取得
     func sendGetIconData(url: String) async throws -> Data {
-        let url = URL(string: url)!
-        let (data, err) = try await URLSession.shared.data(from: url)
-        // 200以外は成功と認めない
-        if err.hashValue == 200 {
+        guard let url = URL(string: url) else {
+            throw Errors.invalidURL
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+
+        // URLResponseをHTTPURLResponseにキャストしてステータスコードを取得
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw Errors.invalidResponse
+        }
+
+        // ステータスコードが200かどうかを確認
+        if httpResponse.statusCode == 200 {
             return data
         } else {
-            throw Errors.networkError(err.hashValue)
+            throw Errors.networkError(httpResponse.statusCode)
         }
     }
 }

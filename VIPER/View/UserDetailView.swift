@@ -6,44 +6,65 @@
 //
 
 import SwiftUI
-
+// Presenterを疎結合にするためジェネリクス定義
 struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
+    @State private var imageData: Data?
     @Binding var navigationPath: NavigationPath
     @ObservedObject var presenter: Presenter
     
     var body: some View {
         VStack(spacing: 16) {
-//            if let imageData = userData.followeesCount,
-//               let uiImage = UIImage(data: imageData) {
-//                Image(uiImage: uiImage)
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 100, height: 100)
-//                    .clipShape(Circle())
-//            } else {
-//                Image(systemName: "person.circle")
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 100, height: 100)
-//                    .clipShape(Circle())
-//                    .foregroundColor(.gray)
-//            }
-//            Text(userData.name ?? "No Name")
-//                .font(.title)
-//                .fontWeight(.bold)
-//            
-//            Text("Followers: \(userData.followersCount ?? 0)")
-//            Text("Following: \(userData.followeesCount ?? 0)")
+            userProfile
+            MiddleListTitleView(title: "投稿記事一覧")
             detailList
+        }
+        .onAppear(){
+            Task {
+                try await presenter.fetchItemApi()
+                imageData = try await presenter.fetchImageData()
+            }
         }
         .onDisappear(){
             Task {
-               try await presenter.saveUserData(imageData:Data())
+               try await presenter.saveUserData()
             }
 
         }
         .padding()
         .navigationTitle("ユーザ詳細")
+    }
+    
+    private var userProfile: some View {
+        VStack(alignment: .leading) {
+            HStack(alignment: .top, spacing: 4) {
+                if let imageData = imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 120)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.gray, lineWidth: 1))
+                        .shadow(radius: 3)
+                } else {
+                    Circle()
+                        .fill(Color.gray)
+                        .frame(width: 120, height: 120)
+                        .overlay(Text("?").foregroundColor(.white))
+                }
+
+                VStack(alignment: .leading) {
+                    Text(presenter.userData.name ?? "Unknown User")
+                        .bold()
+                        .font(.title)
+                    Text("投稿数: \(presenter.userData.itemsCount ?? 0)")
+                    HStack {
+                        Text("following: \(presenter.userData.followeesCount ?? 0)")
+                        Text("followers: \(presenter.userData.followersCount ?? 0)")
+                    }
+                }
+                .padding(20)
+            }
+        }
     }
     
     private var detailList: some View {
