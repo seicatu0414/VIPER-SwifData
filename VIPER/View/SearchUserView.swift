@@ -15,29 +15,31 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
     @State private var searchText: String = ""
     
     var body: some View {
-        NavigationStack {
-            VStack {
+        VStack {
+            NavigationStack {
                 searchBar
                 MiddleListTitleView(title: "過去閲覧したユーザー")
                 userList
             }
-            .onAppear() {
-                Task {
-                    try await presenter.fetchSwiftData()
-                }
-            }
-            .navigationTitle("ユーザ検索")
-            .onChange(of: sharedModelContainer.dataChangeCnt) {
-                // pop遷移がうまく制御できず、onAppearがSwiftDataの更新
-                // より早く走ってしまう為modelcontextの更新で再レンダリングを行うために
-                // やむなく実装
-                // 暇な時に修正案考える
-                Task {
-                    try await presenter.fetchSwiftData()
-                }
-            }
+            //RouterのnavigationPath.append(userData)がトリガー
             .navigationDestination(for: SearchUser.self) { user in
                 UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: user)
+            }
+            .navigationTitle("ユーザ検索")
+        }
+        .onAppear() {
+            Task {
+                try await presenter.fetchSwiftData()
+            }
+        }
+
+        .onChange(of: sharedModelContainer.dataChangeCnt) {
+            // pop遷移がうまく制御できず、onAppearがSwiftDataの更新
+            // より早く走ってしまう為modelcontextの更新で再レンダリングを行うために
+            // やむなく実装
+            // 暇な時に修正案考える
+            Task {
+                try await presenter.fetchSwiftData()
             }
         }
     }
@@ -66,19 +68,19 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
         .padding(.top)
     }
     
-//    private var listTitle: some View {
-//        GeometryReader { geometry in
-//            Text("過去閲覧したユーザー")
-//                .fontWeight(.bold)
-//                .frame(width: geometry.size.width, height: 30, alignment: .leading)
-//                .padding(.horizontal, 16)
-//                .background(Color.secondary)
-//                .foregroundColor(.white)
-//        }
-//        .frame(height: 30)
-//        
-//    }
-
+    //    private var listTitle: some View {
+    //        GeometryReader { geometry in
+    //            Text("過去閲覧したユーザー")
+    //                .fontWeight(.bold)
+    //                .frame(width: geometry.size.width, height: 30, alignment: .leading)
+    //                .padding(.horizontal, 16)
+    //                .background(Color.secondary)
+    //                .foregroundColor(.white)
+    //        }
+    //        .frame(height: 30)
+    //
+    //    }
+    
     private var userList: some View {
         List(presenter.users, id: \.id) { user in
             Button(action: {

@@ -11,7 +11,7 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
     @State private var imageData: Data?
     @Binding var navigationPath: NavigationPath
     @ObservedObject var presenter: Presenter
-    
+
     var body: some View {
         VStack(spacing: 16) {
             userProfile
@@ -26,12 +26,20 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
         }
         .onDisappear(){
             Task {
-               try await presenter.saveUserData()
+                try await presenter.saveUserData()
             }
-
         }
         .padding()
         .navigationTitle("ユーザ詳細")
+        // モーダル遷移の設定
+        .sheet(isPresented: $presenter.isModalPresented) {
+            if let urlStr = presenter.webViewUrlStr {
+                ItemWebModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData:urlStr)
+            }
+        }
+//        .navigationDestination(for: SearchUser.self) { user in
+////            UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: user)
+//        }
     }
     
     private var userProfile: some View {
@@ -51,15 +59,27 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
                         .frame(width: 120, height: 120)
                         .overlay(Text("?").foregroundColor(.white))
                 }
-
+                
                 VStack(alignment: .leading) {
                     Text(presenter.userData.name ?? "Unknown User")
                         .bold()
                         .font(.title)
                     Text("投稿数: \(presenter.userData.itemsCount ?? 0)")
                     HStack {
-                        Text("following: \(presenter.userData.followeesCount ?? 0)")
-                        Text("followers: \(presenter.userData.followersCount ?? 0)")
+                        Button(action: {
+                            presenter.tapFolloweeButton()
+                        }) {
+                            Text("following: \(presenter.userData.followeesCount ?? 0)")
+                        }
+                        .foregroundColor(.stringBlack)
+                        
+                        Button(action: {
+                            presenter.tapFollowerButton()
+                        }) {
+                            Text("followers: \(presenter.userData.followersCount ?? 0)")
+                        }
+                        .foregroundColor(.stringBlack)
+                        
                     }
                 }
                 .padding(20)
@@ -72,10 +92,11 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
             Button(action: {
                 if let index = presenter.items.firstIndex(where: { $0.id == item.id }) {
                     presenter.didSelectCell(at: IndexPath(row: index, section: 0))
+                    presenter.isModalPresented = true
                 }
             }) {
                 UserItemsRow(title: item.title!, updateDay: item.updatedAt!, tags: item.tags!)
-                .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity)
             }
             .buttonStyle(.plain)
         }

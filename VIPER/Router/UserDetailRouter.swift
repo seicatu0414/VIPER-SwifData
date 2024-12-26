@@ -24,8 +24,9 @@ class UserDetailRouter: UserDetailRouterProtocol {
     init(navigationPath: Binding<NavigationPath>) {
         _navigationPath = navigationPath
     }
-    // Itemを表示するWebViewにモーダル遷移
+    // Itemを表示するWebViewにモーダル遷移(SwiftUIではViewにモーダル遷移のイベントトリガあるため不要)
     func modalItemWebView(url: String) {
+
     }
     //  ユーザ検索画面に戻る
     func popToSearchUserView() {
