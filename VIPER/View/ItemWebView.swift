@@ -6,7 +6,6 @@
 //
 
 import WebKit
-import SwiftUICore
 import SwiftUI
 
 struct ItemWebView<Presenter: ItemWebViewPresenterProtocol>: View {

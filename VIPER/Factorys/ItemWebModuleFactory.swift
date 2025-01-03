@@ -8,7 +8,7 @@
 import SwiftUI
 
 // navigationDestinationなどViewでPresenters、Routerのインスタンスを生成すると責務があやふやになってしまう為作成
-class ItemWebModuleFactory: @preconcurrency ModuleFactoryProtocol {
+class ItemWebModuleFactory: ModuleFactoryProtocol {
     
     @Binding var navigationPath: NavigationPath
     typealias PresenterType = ItemWebViewPresenter

@@ -11,12 +11,13 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
     @State private var imageData: Data?
     @Binding var navigationPath: NavigationPath
     @ObservedObject var presenter: Presenter
+    @State private var isModalPresented = false
 
     var body: some View {
         VStack(spacing: 16) {
             userProfile
             MiddleListTitleView(title: "投稿記事一覧")
-            detailList
+            itemsList
         }
         .onAppear(){
             Task {
@@ -32,14 +33,15 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
         .padding()
         .navigationTitle("ユーザ詳細")
         // モーダル遷移の設定
-        .sheet(isPresented: $presenter.isModalPresented) {
+        .sheet(isPresented: $isModalPresented) {
             if let urlStr = presenter.webViewUrlStr {
                 ItemWebModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData:urlStr)
             }
         }
-//        .navigationDestination(for: SearchUser.self) { user in
-////            UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: user)
-//        }
+        .navigationDestination(for:FollowerAndFolloweeData.self) { data in
+                FollowerAndFolloweeModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: data)
+
+        }
     }
     
     private var userProfile: some View {
@@ -87,12 +89,12 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
         }
     }
     
-    private var detailList: some View {
+    private var itemsList: some View {
         List(presenter.items, id: \.id) { item in
             Button(action: {
                 if let index = presenter.items.firstIndex(where: { $0.id == item.id }) {
                     presenter.didSelectCell(at: IndexPath(row: index, section: 0))
-                    presenter.isModalPresented = true
+                    isModalPresented = true
                 }
             }) {
                 UserItemsRow(title: item.title!, updateDay: item.updatedAt!, tags: item.tags!)

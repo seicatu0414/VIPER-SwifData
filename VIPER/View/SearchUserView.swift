@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 // Presenterを疎結合にするためジェネリクス定義
 struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
     @Binding var navigationPath: NavigationPath
@@ -68,18 +67,6 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
         .padding(.top)
     }
     
-    //    private var listTitle: some View {
-    //        GeometryReader { geometry in
-    //            Text("過去閲覧したユーザー")
-    //                .fontWeight(.bold)
-    //                .frame(width: geometry.size.width, height: 30, alignment: .leading)
-    //                .padding(.horizontal, 16)
-    //                .background(Color.secondary)
-    //                .foregroundColor(.white)
-    //        }
-    //        .frame(height: 30)
-    //
-    //    }
     
     private var userList: some View {
         List(presenter.users, id: \.id) { user in

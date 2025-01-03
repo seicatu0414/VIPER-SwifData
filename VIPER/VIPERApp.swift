@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftData
 
+class NavigationState: ObservableObject {
+    @Published var navigationPath: NavigationPath = NavigationPath()
+}
 
 @main
 struct VIPERApp: App {

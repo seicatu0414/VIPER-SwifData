@@ -13,14 +13,16 @@ import SwiftUI
 protocol UserDetailRouterProtocol {
     func modalItemWebView(url: String)
     func popToSearchUserView()
-    func tapToFollower(followers: [SearchUserFollower])
-    func tapToFollowee(followees: [SearchUserFollowee])
+//    func tapToFollower(followers: [SearchUserFollower])
+//    func tapToFollowee(followees: [SearchUserFollowee])
+    func tapToFollowerAndFollowee(followerOrFollowee:Bool, userId: String)
+//    func tapToFollowerAndFollowee(followees: [SearchUserFollowee])
 
 }
 
 class UserDetailRouter: UserDetailRouterProtocol {
     @Binding var navigationPath: NavigationPath
-    static let userDetailPath: String = "/FollowerAndFollowee"
+    static let followerAndFolloweePath: String = "/FollowerAndFollowee"
     init(navigationPath: Binding<NavigationPath>) {
         _navigationPath = navigationPath
     }
@@ -35,10 +37,16 @@ class UserDetailRouter: UserDetailRouterProtocol {
         }
     }
     func tapToFollower(followers: [SearchUserFollower]) {
-
+        navigationPath.append(followers)
     }
     
     func tapToFollowee(followees: [SearchUserFollowee]) {
-
+        navigationPath.append(followees)
     }
+    func tapToFollowerAndFollowee(followerOrFollowee:Bool, userId: String) {
+        let data = FollowerAndFolloweeData(type: followerOrFollowee, userId: userId, path: UserDetailRouter.followerAndFolloweePath)
+        navigationPath.append(data)
+        print(navigationPath)
+    }
+    
 }

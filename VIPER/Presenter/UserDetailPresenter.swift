@@ -11,7 +11,6 @@ protocol UserDetailPresenterProtocol:ObservableObject {
     var userData: SearchUser { get }
     var items: [SearchUserItems] { get }
     var webViewUrlStr: String? { get }
-    var isModalPresented: Bool { get set }
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
     func tapFollowerButton()
@@ -26,7 +25,6 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     // 一時的な情報保持のためPresenterに保持
     let userData: SearchUser
     @Published var items: [SearchUserItems] = [SearchUserItems]()
-    @Published var isModalPresented: Bool = false
     @Published var webViewUrlStr: String? = nil
     var lookingUser:String = ""
     var imageData:Data = Data()
@@ -49,14 +47,14 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     func didSelectCell(at indexPath: IndexPath) {
         let item = self.items[indexPath.row]
         webViewUrlStr = item.url
-        isModalPresented = true
+//        isModalPresented = true
     }
     
     func tapFollowerButton() {
         Task {
             do {
-                let followers = try await apiInteractor.sendFollowersApi(userId: userData.id!)
-                await self.router.tapToFollower(followers: followers)
+//                let followers = try await apiInteractor.sendFollowersApi(userId: userData.id)
+                await self.router.tapToFollowerAndFollowee(followerOrFollowee: true, userId: userData.id)
             } catch {
                 
             }
@@ -67,8 +65,9 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     func tapFolloweeButton() {
         Task {
             do {
-                let followees = try await apiInteractor.sendFolloweesApi(userId: userData.id!)
-                await self.router.tapToFollowee(followees: followees)
+//                let followees = try await apiInteractor.sendFolloweesApi(userId: userData.id)
+                await self.router.tapToFollowerAndFollowee(followerOrFollowee: false, userId: userData.id)
+
             } catch {
                 
             }
@@ -91,7 +90,7 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     @MainActor
     func fetchItemApi() async throws {
         do {
-            let items = try await apiInteractor.sendUserItemsApi(userId: userData.id!)
+            let items = try await apiInteractor.sendUserItemsApi(userId: userData.id)
             self.items = items
         } catch {
             

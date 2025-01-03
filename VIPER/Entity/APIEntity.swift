@@ -9,13 +9,13 @@ import Foundation
 
 // https://qiita.com/api/v2/users/user_id
 // ユーザー検索
-struct SearchUser: Decodable,Hashable {
+struct SearchUser: UserProtocol,Hashable {
     let description: String?
     let facebookID: String?
     let followeesCount: Int?
     let followersCount: Int?
     let githubLoginName: String?
-    let id: String?
+    let id: String
     let itemsCount: Int?
     let linkedinID: String?
     let location: String?
@@ -46,23 +46,23 @@ struct SearchUser: Decodable,Hashable {
     // APIデコード用init
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
-        self.facebookID = try container.decodeIfPresent(String.self, forKey: .facebookID) ?? ""
+        self.description = try container.decodeIfPresent(String.self, forKey: .description)
+        self.facebookID = try container.decodeIfPresent(String.self, forKey: .facebookID)
         self.followeesCount = try container.decodeIfPresent(Int.self, forKey: .followeesCount)
         self.followersCount = try container.decodeIfPresent(Int.self, forKey: .followersCount)
         // テストしたらここにnullが入ってきたのでStringはnull考慮
-        self.githubLoginName = try container.decodeIfPresent(String.self, forKey: .githubLoginName) ?? ""
+        self.githubLoginName = try container.decodeIfPresent(String.self, forKey: .githubLoginName)
         self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         self.itemsCount = try container.decodeIfPresent(Int.self, forKey: .itemsCount)
-        self.linkedinID = try container.decodeIfPresent(String.self, forKey: .linkedinID) ?? ""
-        self.location = try container.decodeIfPresent(String.self, forKey: .location) ?? ""
-        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
-        self.organization = try container.decodeIfPresent(String.self, forKey: .organization) ?? ""
+        self.linkedinID = try container.decodeIfPresent(String.self, forKey: .linkedinID)
+        self.location = try container.decodeIfPresent(String.self, forKey: .location)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name)
+        self.organization = try container.decodeIfPresent(String.self, forKey: .organization)
         self.permanentID = try container.decodeIfPresent(Int.self, forKey: .permanentID)
-        self.profileImageURL = try container.decodeIfPresent(String.self, forKey: .profileImageURL) ?? ""
+        self.profileImageURL = try container.decodeIfPresent(String.self, forKey: .profileImageURL)
         self.teamOnly = try container.decodeIfPresent(Bool.self, forKey: .teamOnly)
-        self.twitterScreenName = try container.decodeIfPresent(String.self, forKey: .twitterScreenName) ?? ""
-        self.websiteURL = try container.decodeIfPresent(String.self, forKey: .websiteURL) ?? ""
+        self.twitterScreenName = try container.decodeIfPresent(String.self, forKey: .twitterScreenName)
+        self.websiteURL = try container.decodeIfPresent(String.self, forKey: .websiteURL)
     }
 }
 
@@ -110,8 +110,8 @@ struct SearchUserItems: Decodable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.renderedBody = try container.decodeIfPresent(String.self, forKey: .renderedBody) ?? ""
-        self.body = try container.decodeIfPresent(String.self, forKey: .body) ?? ""
+        self.renderedBody = try container.decodeIfPresent(String.self, forKey: .renderedBody)
+        self.body = try container.decodeIfPresent(String.self, forKey: .body)
         self.coediting = try container.decodeIfPresent(Bool.self, forKey: .coediting)
         self.commentsCount = try container.decodeIfPresent(Int.self, forKey: .commentsCount)
         self.createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
@@ -122,13 +122,13 @@ struct SearchUserItems: Decodable {
         self.reactionsCount = try container.decodeIfPresent(Int.self, forKey: .reactionsCount)
         self.stocksCount = try container.decodeIfPresent(Int.self, forKey: .stocksCount)
         self.tags = try container.decodeIfPresent([Tag].self, forKey: .tags)
-        self.title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        self.title = try container.decodeIfPresent(String.self, forKey: .title)
         self.updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
-        self.url = try container.decodeIfPresent(String.self, forKey: .url) ?? ""
+        self.url = try container.decodeIfPresent(String.self, forKey: .url)
         self.user = try container.decodeIfPresent(UserInfo.self, forKey: .user)
         self.pageViewsCount = try container.decodeIfPresent(Int.self, forKey: .pageViewsCount)
         self.teamMembership = try container.decodeIfPresent(TeamMembership.self, forKey: .teamMembership)
-        self.organizationURLName = try container.decodeIfPresent(String.self, forKey: .organizationURLName) ?? ""
+        self.organizationURLName = try container.decodeIfPresent(String.self, forKey: .organizationURLName)
         self.slide = try container.decodeIfPresent(Bool.self, forKey: .slide)
     }
 }
@@ -256,13 +256,13 @@ struct UserInfo: Decodable {
 
 // https://qiita.com/api/v2/users/:user_id/followees
 // followしている
-struct SearchUserFollowee: Decodable {
+struct SearchUserFollowee: UserProtocol,Hashable {
     let description:String?
     let facebookID: String?
     let followeesCount:Int?
     let followersCount: Int?
     let githubLoginName: String?
-    let id: String?
+    let id: String
     let itemsCount: Int?
     let linkedinID: String?
     let location: String?
@@ -298,7 +298,7 @@ struct SearchUserFollowee: Decodable {
         self.followeesCount = try container.decodeIfPresent(Int.self, forKey: .followeesCount)
         self.followersCount = try container.decodeIfPresent(Int.self, forKey: .followersCount)
         self.githubLoginName = try container.decodeIfPresent(String.self, forKey: .githubLoginName)
-        self.id = try container.decodeIfPresent(String.self, forKey: .id)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         self.itemsCount = try container.decodeIfPresent(Int.self, forKey: .itemsCount)
         self.linkedinID = try container.decodeIfPresent(String.self, forKey: .linkedinID)
         self.location = try container.decodeIfPresent(String.self, forKey: .location)
@@ -314,13 +314,13 @@ struct SearchUserFollowee: Decodable {
 
 // https://qiita.com/api/v2/users/:user_id/followers
 // Followerしてる
-struct SearchUserFollower: Decodable {
+struct SearchUserFollower: UserProtocol,Hashable {
     let description:String?
     let facebookID: String?
     let followeesCount: Int?
     let followersCount: Int?
     let githubLoginName:String?
-    let id: String?
+    let id: String
     let itemsCount: Int?
     let linkedinID: String?
     let location: String?
