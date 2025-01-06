@@ -16,7 +16,7 @@ class NavigationState: ObservableObject {
 struct VIPERApp: App {
     var sharedModelContainer: SharedModelContainer
     var diContainer: DIContainer
-    @State private var navigationPath = NavigationPath()
+    @StateObject private var navigationState = NavigationState()
     
     init() {
         // sharedModelContainerの初期化
@@ -25,11 +25,13 @@ struct VIPERApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            NavigationStack(path: $navigationPath) {
-                SearchUserModuleFactory.createModule(navigationPath: $navigationPath, diContainer: diContainer)
+            NavigationStack(path: $navigationState.navigationPath) {
+                SearchUserModuleFactory.createModule(navigationState: navigationState, diContainer: diContainer, inputData: nil)
                     .environmentObject(sharedModelContainer) // SharedModelContainerを渡す
+                    .environmentObject(navigationState)
             }
         }
+        // 消してもSwiftDataに保存する（なぜ？）
         .modelContainer(sharedModelContainer.modelContainer)
     }
 }

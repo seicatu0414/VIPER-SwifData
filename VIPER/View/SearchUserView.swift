@@ -8,30 +8,22 @@
 import SwiftUI
 // Presenterを疎結合にするためジェネリクス定義
 struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var sharedModelContainer: SharedModelContainer
     @ObservedObject var presenter: Presenter
     @State private var searchText: String = ""
     
     var body: some View {
         VStack {
-            NavigationStack {
                 searchBar
                 MiddleListTitleView(title: "過去閲覧したユーザー")
                 userList
-            }
-            //RouterのnavigationPath.append(userData)がトリガー
-            .navigationDestination(for: SearchUser.self) { user in
-                UserDetailModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: user)
-            }
-            .navigationTitle("ユーザ検索")
         }
         .onAppear() {
             Task {
                 try await presenter.fetchSwiftData()
             }
         }
-
         .onChange(of: sharedModelContainer.dataChangeCnt) {
             // pop遷移がうまく制御できず、onAppearがSwiftDataの更新
             // より早く走ってしまう為modelcontextの更新で再レンダリングを行うために
@@ -41,6 +33,14 @@ struct SearchUserView<Presenter: SearchUserPresenterProtocol>: View {
                 try await presenter.fetchSwiftData()
             }
         }
+        //RouterのnavigationPath.append(userData)がトリガー
+        .navigationDestination(for: SearchUser.self) { user in
+//            var lastElement = Array(arrayLiteral: navigationState.navigationPath).last
+                UserDetailModuleFactory.createModule(navigationState: navigationState, diContainer: DIContainer.shared, inputData: user)
+                    .environmentObject(navigationState)
+
+        }
+        .navigationTitle("ユーザ検索")
     }
     
     private var searchBar: some View {

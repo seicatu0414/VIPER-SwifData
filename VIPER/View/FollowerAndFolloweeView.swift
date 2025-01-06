@@ -11,7 +11,7 @@ struct FollowerAndFolloweeView<Presenter: FllowerAndFolloweePresenterProtocol>: 
     var body: some View {
         VStack {
             follwerOrFolloweeSegment
-            MiddleListTitleView(title: isOn ? "Follower" : "Followee")
+            MiddleListTitleView(title: isOn ? "Followee":"Follower")
             if isOn {
                 followerListView
             } else {
@@ -31,10 +31,10 @@ struct FollowerAndFolloweeView<Presenter: FllowerAndFolloweePresenterProtocol>: 
     private var follwerOrFolloweeSegment: some View {
         Picker("", selection: $isOn) {
             Text("Follower")
-                .tag(true)
+                .tag(false)
             
             Text("Followee")
-                .tag(false)
+                .tag(true)
         }
         .pickerStyle(SegmentedPickerStyle())
         .padding()

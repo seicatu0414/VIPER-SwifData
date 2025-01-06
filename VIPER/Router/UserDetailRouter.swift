@@ -21,32 +21,34 @@ protocol UserDetailRouterProtocol {
 }
 
 class UserDetailRouter: UserDetailRouterProtocol {
-    @Binding var navigationPath: NavigationPath
+    private let navigationState: NavigationState
     static let followerAndFolloweePath: String = "/FollowerAndFollowee"
-    init(navigationPath: Binding<NavigationPath>) {
-        _navigationPath = navigationPath
+    
+    init(navigationState: NavigationState) {
+        self.navigationState = navigationState
     }
+
     // Itemを表示するWebViewにモーダル遷移(SwiftUIではViewにモーダル遷移のイベントトリガあるため不要)
     func modalItemWebView(url: String) {
 
     }
     //  ユーザ検索画面に戻る
     func popToSearchUserView() {
-        if !navigationPath.isEmpty {
-            navigationPath.removeLast()
+        if !navigationState.navigationPath.isEmpty {
+            navigationState.navigationPath.removeLast()
         }
     }
     func tapToFollower(followers: [SearchUserFollower]) {
-        navigationPath.append(followers)
+        navigationState.navigationPath.append(followers)
     }
     
     func tapToFollowee(followees: [SearchUserFollowee]) {
-        navigationPath.append(followees)
+        navigationState.navigationPath.append(followees)
     }
     func tapToFollowerAndFollowee(followerOrFollowee:Bool, userId: String) {
         let data = FollowerAndFolloweeData(type: followerOrFollowee, userId: userId, path: UserDetailRouter.followerAndFolloweePath)
-        navigationPath.append(data)
-        print(navigationPath)
+        Thread.callStackSymbols.forEach { print($0) } // 呼び出し元を出力
+        navigationState.navigationPath.append(data)
     }
     
 }

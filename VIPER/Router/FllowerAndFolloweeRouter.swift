@@ -16,11 +16,12 @@ protocol FllowerAndFolloweeRouterProtocol {
 
 
 class FllowerAndFolloweeRouter: FllowerAndFolloweeRouterProtocol {
-    @Binding var navigationPath: NavigationPath
+    private let navigationState: NavigationState
     static let userDetailPath: String = "/UserDetail"
-    init(navigationPath: Binding<NavigationPath>) {
-        _navigationPath = navigationPath
+    init(navigationState: NavigationState) {
+        self.navigationState = navigationState
     }
+
     // プッシュ遷移
     func pushToUserDetail(userData: SearchUser) {
 

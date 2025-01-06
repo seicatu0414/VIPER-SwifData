@@ -16,20 +16,22 @@ protocol SearchUserRouterProtocol {
 
 
 class SearchUserViewRouter: SearchUserRouterProtocol {
-    @Binding var navigationPath: NavigationPath
+
     static let userDetailPath: String = "/UserDetail"
-    init(navigationPath: Binding<NavigationPath>) {
-        _navigationPath = navigationPath
+    private let navigationState: NavigationState
+
+    init(navigationState: NavigationState) {
+        self.navigationState = navigationState
     }
     // プッシュ遷移
     func pushToUserDetail(userData: SearchUser) {
-        navigationPath.append(userData)
+        navigationState.navigationPath.append(userData)
     }
     
-    // ポップ遷移
+    // ポップ遷移(不要っぽい)
     func popToPreviousView() {
-        if !navigationPath.isEmpty {
-            navigationPath.removeLast()
+        if !navigationState.navigationPath.isEmpty {
+            navigationState.navigationPath.removeLast()
         }
     }
     

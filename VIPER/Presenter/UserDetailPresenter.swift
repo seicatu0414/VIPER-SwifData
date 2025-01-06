@@ -11,13 +11,14 @@ protocol UserDetailPresenterProtocol:ObservableObject {
     var userData: SearchUser { get }
     var items: [SearchUserItems] { get }
     var webViewUrlStr: String? { get }
+    var imageData:Data { get }
     // 画面遷移
     func didSelectCell(at indexPath: IndexPath)
     func tapFollowerButton()
     func tapFolloweeButton()
     func saveUserData() async throws
     func fetchItemApi() async throws
-    func fetchImageData() async throws -> Data
+    func fetchImageData() async throws
 }
 
 class UserDetailPresenter: UserDetailPresenterProtocol {
@@ -27,7 +28,7 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     @Published var items: [SearchUserItems] = [SearchUserItems]()
     @Published var webViewUrlStr: String? = nil
     var lookingUser:String = ""
-    var imageData:Data = Data()
+    @Published var imageData:Data = Data()
     private var apiInteractor: APIInteractorProtocol
     private var swiftDataInteractor: SwiftDataInteractorProtocol
     private var router: UserDetailRouterProtocol
@@ -47,13 +48,11 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     func didSelectCell(at indexPath: IndexPath) {
         let item = self.items[indexPath.row]
         webViewUrlStr = item.url
-//        isModalPresented = true
     }
     
     func tapFollowerButton() {
         Task {
             do {
-//                let followers = try await apiInteractor.sendFollowersApi(userId: userData.id)
                 await self.router.tapToFollowerAndFollowee(followerOrFollowee: true, userId: userData.id)
             } catch {
                 
@@ -65,7 +64,6 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
     func tapFolloweeButton() {
         Task {
             do {
-//                let followees = try await apiInteractor.sendFolloweesApi(userId: userData.id)
                 await self.router.tapToFollowerAndFollowee(followerOrFollowee: false, userId: userData.id)
 
             } catch {
@@ -80,7 +78,8 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
         let date = Date()
             do {
                 try await self.swiftDataInteractor.saveUser(id: userData.id, name: userData.name, profileImageData: imageData, followeesCount: userData.followeesCount, followersCount: userData.followersCount, lookDate: date)
-                await self.router.popToSearchUserView()
+                // こいつがめちゃめちゃ悪さしてた。
+                //await self.router.popToSearchUserView()
             } catch {
                 print("aaaa")
             }
@@ -96,10 +95,9 @@ class UserDetailPresenter: UserDetailPresenterProtocol {
             
         }
     }
-    
-   func fetchImageData() async throws -> Data {
+    @MainActor
+   func fetchImageData() async throws {
        self.imageData = try await apiInteractor.sendGetIconData(url: userData.profileImageURL!)
-       return self.imageData
     }
 }
 

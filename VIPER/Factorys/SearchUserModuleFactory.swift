@@ -9,28 +9,20 @@ import SwiftUI
 
 // navigationDestinationなどViewでPresenters、Routerのインスタンスを生成すると責務があやふやになってしまう為作成
 class SearchUserModuleFactory: @preconcurrency ModuleFactoryProtocol {
+    
     typealias PresenterType = SearchUserPresenter
     typealias ViewType = SearchUserView<SearchUserPresenter>
     typealias InputData = Void
-    @Binding var navigationPath: NavigationPath
-    init(navigationPath: Binding<NavigationPath>) {
-        _navigationPath = navigationPath
-    }
-
+    
     @MainActor
-    static func createModule(
-        navigationPath: Binding<NavigationPath>,
-        diContainer: DIContainer,
-        inputData: Void? = nil
-    ) -> SearchUserView<SearchUserPresenter> {
-        let router = SearchUserViewRouter(navigationPath: navigationPath)
+    static func createModule(navigationState: NavigationState,diContainer: DIContainer, inputData: Void?) -> SearchUserView<SearchUserPresenter> {
+        let router = SearchUserViewRouter(navigationState: navigationState)
         let presenter = SearchUserPresenter(
             apiInteractor: diContainer.apiInteractor,
             swiftDataInteractor: diContainer.swiftDataInteractor,
             router: router
         )
         return SearchUserView<SearchUserPresenter>(
-            navigationPath: navigationPath,
             presenter: presenter
         )
     }

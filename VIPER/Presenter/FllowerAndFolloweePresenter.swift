@@ -37,7 +37,8 @@ class FllowerAndFolloweePresenter: FllowerAndFolloweePresenterProtocol {
     
     @MainActor
     func fetchFollowers() async throws {
-        self.followers = try await apiInteractor.sendFollowersApi(userId: userIdStr)
+        let followers = try await apiInteractor.sendFollowersApi(userId: userIdStr)
+        self.followers = followers
 //        self.followers = followers.map { follower in
 //                User(
 //                    id: follower.id,
@@ -50,7 +51,8 @@ class FllowerAndFolloweePresenter: FllowerAndFolloweePresenterProtocol {
     }
     @MainActor
     func fetchFollowees() async throws {
-        self.followees = try await apiInteractor.sendFolloweesApi(userId: userIdStr)
+        let followees = try await apiInteractor.sendFolloweesApi(userId: userIdStr)
+        self.followees = followees
 //        self.followees = followees.map { followees in
 //                User(
 //                    id: followees.id,

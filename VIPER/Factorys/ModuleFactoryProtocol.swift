@@ -11,10 +11,9 @@ import SwiftUI
 protocol ModuleFactoryProtocol {
     associatedtype PresenterType
     associatedtype ViewType: View
-    var navigationPath: NavigationPath { get }
     associatedtype InputData = Void
     static func createModule(
-        navigationPath: Binding<NavigationPath>,
+        navigationState: NavigationState,
         diContainer: DIContainer,
         inputData: InputData?
     ) -> ViewType

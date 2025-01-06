@@ -8,8 +8,7 @@
 import SwiftUI
 // Presenterを疎結合にするためジェネリクス定義
 struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
-    @State private var imageData: Data?
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var navigationState: NavigationState
     @ObservedObject var presenter: Presenter
     @State private var isModalPresented = false
 
@@ -22,10 +21,11 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
         .onAppear(){
             Task {
                 try await presenter.fetchItemApi()
-                imageData = try await presenter.fetchImageData()
+                try await presenter.fetchImageData()
             }
         }
         .onDisappear(){
+            
             Task {
                 try await presenter.saveUserData()
             }
@@ -35,11 +35,12 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
         // モーダル遷移の設定
         .sheet(isPresented: $isModalPresented) {
             if let urlStr = presenter.webViewUrlStr {
-                ItemWebModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData:urlStr)
+                ItemWebModuleFactory.createModule(navigationState: navigationState, diContainer: DIContainer.shared, inputData:urlStr)
             }
         }
         .navigationDestination(for:FollowerAndFolloweeData.self) { data in
-                FollowerAndFolloweeModuleFactory.createModule(navigationPath: $navigationPath, diContainer: DIContainer.shared, inputData: data)
+            FollowerAndFolloweeModuleFactory.createModule(navigationState: navigationState, diContainer: DIContainer.shared, inputData: data)
+                .environmentObject(navigationState)
 
         }
     }
@@ -47,7 +48,7 @@ struct UserDetailView<Presenter: UserDetailPresenterProtocol>: View {
     private var userProfile: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .top, spacing: 4) {
-                if let imageData = imageData, let uiImage = UIImage(data: imageData) {
+                if let uiImage = UIImage(data: presenter.imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
